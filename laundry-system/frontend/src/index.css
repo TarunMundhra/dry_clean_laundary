@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1f2933;
+  --paper: #f5f1eb;
+  --sand: #f8e3c8;
+  --coral: #f08c50;
+  --teal: #2a9d8f;
+  --slate: #51606d;
+  --mist: #e6e4df;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Sora", ui-sans-serif, system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--sand);
+}
