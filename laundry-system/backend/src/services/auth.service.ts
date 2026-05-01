@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "../config/env";
 import { AuthPayload, LoginResult } from "../types";
 import { AppError } from "../utils/appError";
@@ -15,9 +15,10 @@ export const authenticateAdmin = (
   }
 
   const payload: AuthPayload = { username };
-  const token = jwt.sign(payload, env.jwtSecret, {
-    expiresIn: env.jwtExpiresIn,
-  });
+  const signOptions: SignOptions = {
+    expiresIn: env.jwtExpiresIn as SignOptions["expiresIn"],
+  };
+  const token = jwt.sign(payload, env.jwtSecret, signOptions);
 
   return {
     token,
