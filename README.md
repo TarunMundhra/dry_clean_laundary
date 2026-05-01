@@ -21,11 +21,7 @@ start http://localhost:5173
 
 Project name: Mini Laundry Order Management System
 
-Assignment: Build a lightweight dry-cleaning order management system for a store.
-
 Goal: Create orders, track status, calculate billing, and view a business dashboard.
-
-Time limit: 72 hours.
 
 Deployment targets:
 
@@ -33,10 +29,7 @@ Deployment targets:
 - Frontend on Vercel.
 - Swagger docs served from the backend.
 
-Admin credentials (local default):
-
-- Username: admin
-- Password: admin123
+Admin credentials are configured via backend environment variables.
 
 ## 🧱 Tech Stack
 
@@ -62,27 +55,27 @@ Admin credentials (local default):
 
 ### Core
 
-- [x] Create order - customer name, phone (Indian 10-digit validated), garments.
-- [x] Auto-calculate total from garment price catalog (10 garment types).
-- [x] Unique Order ID generated: format ORD-YYYYMMDD-XXXX.
-- [x] Status management: RECEIVED -> PROCESSING -> READY -> DELIVERED.
-- [x] Forward-only status transitions (backward transitions rejected with 400).
-- [x] List all orders with pagination (10 per page).
-- [x] Filter by status, garment type, and search (name / phone / order ID).
-- [x] Dashboard: total orders, total revenue, orders by status, today's stats.
-- [x] JWT authentication on all protected routes.
+- Create order - customer name, phone (Indian 10-digit validated), garments.
+- Auto-calculate total from garment price catalog (10 garment types).
+- Unique Order ID generated: format ORD-YYYYMMDD-XXXX.
+- Status management: RECEIVED -> PROCESSING -> READY -> DELIVERED.
+- Forward-only status transitions (backward transitions rejected with 400).
+- List all orders with pagination (10 per page).
+- Filter by status, garment type, and search (name / phone / order ID).
+- Dashboard: total orders, total revenue, orders by status, today's stats.
+- JWT authentication on all protected routes.
 
 ### Bonus
 
-- [x] React frontend with a full UI (Landing, Login, Dashboard, Orders pages).
-- [x] Estimated delivery date (configurable via DELIVERY_DAYS_OFFSET env var,
-      dynamically adjusted per garment type - e.g. Woolen = 5 days).
-- [x] MongoDB persistence (Atlas in production).
-- [x] Search by garment type (filter dropdown).
-- [x] Swagger UI auto-generated API documentation.
-- [x] Deployed backend (Render) + frontend (Vercel).
-- [x] Jest test suite (6 tests, in-memory MongoDB, no real DB required).
-- [x] Postman collection with auto-token injection.
+- React frontend with a full UI (Landing, Login, Dashboard, Orders pages).
+- Estimated delivery date (configurable via DELIVERY_DAYS_OFFSET env var,
+  dynamically adjusted per garment type - e.g. Woolen = 5 days).
+- MongoDB persistence (Atlas in production).
+- Search by garment type (filter dropdown).
+- Swagger UI auto-generated API documentation.
+- Deployed backend (Render) + frontend (Vercel).
+- Jest test suite (6 tests, in-memory MongoDB, no real DB required).
+- Postman collection with auto-token injection.
 
 ## 🗂️ Folder Structure
 
@@ -174,11 +167,8 @@ VITE_API_BASE_URL=http://localhost:5000/api
 
 Admin-only access is enforced on all protected routes.
 
-Login uses hardcoded credentials from environment variables.
-
-Default local credentials:
-
-- admin / admin123
+Login uses admin credentials defined in the backend .env file and deployment
+environment variables.
 
 JWT is stored in localStorage and attached to every API call.
 
@@ -193,8 +183,8 @@ JWT is stored in localStorage and attached to every API call.
 | JWT_SECRET           | your_super_secret_key_here               | JWT signing secret.           |
 | JWT_EXPIRES_IN       | 24h                                      | Token expiry time.            |
 | DELIVERY_DAYS_OFFSET | 2                                        | Base delivery offset in days. |
-| ADMIN_USERNAME       | admin                                    | Admin username.               |
-| ADMIN_PASSWORD       | admin123                                 | Admin password.               |
+| ADMIN_USERNAME       | your_admin_username                      | Admin username.               |
+| ADMIN_PASSWORD       | your_admin_password                      | Admin password.               |
 | NODE_ENV             | development                              | Runtime environment.          |
 | CORS_ORIGIN          | http://localhost:5173                    | Frontend origin for CORS.     |
 
