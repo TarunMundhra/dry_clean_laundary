@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { CreateOrderForm } from "../components/CreateOrderForm";
 import { FilterBar } from "../components/FilterBar";
@@ -9,12 +10,14 @@ import { ApiSuccess, Order, OrderStatus } from "../types";
 
 export const OrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
+  const [garmentFilter, setGarmentFilter] = useState<string | "ALL">("ALL");
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -24,12 +27,19 @@ export const OrdersPage = () => {
     return () => window.clearTimeout(timeout);
   }, [searchInput]);
 
-  const { orders, total, totalPages, loading, error, refresh } = useOrders({
+  const { orders, total, totalPages, loading, error } = useOrders({
     status: statusFilter === "ALL" ? undefined : statusFilter,
+    garment: garmentFilter === "ALL" ? undefined : garmentFilter,
     search: searchQuery || undefined,
     page,
     limit: 10
   });
+
+  const refreshOrders = () =>
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
+
+  const refreshDashboard = () =>
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
 
   const handleStatusChange = async (orderId: string, status: OrderStatus) => {
     if (status === "RECEIVED") {
@@ -39,7 +49,8 @@ export const OrdersPage = () => {
     setUpdatingOrderId(orderId);
     try {
       await api.patch<ApiSuccess<Order>>(`/orders/${orderId}/status`, { status });
-      refresh();
+      refreshOrders();
+      refreshDashboard();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setUpdateError(err.response?.data?.error?.message ?? "Failed to update status");
@@ -63,9 +74,14 @@ export const OrdersPage = () => {
 
       <FilterBar
         status={statusFilter}
+        garment={garmentFilter}
         search={searchInput}
         onStatusChange={(value) => {
           setStatusFilter(value);
+          setPage(1);
+        }}
+        onGarmentChange={(value) => {
+          setGarmentFilter(value);
           setPage(1);
         }}
         onSearchChange={setSearchInput}
@@ -137,7 +153,8 @@ export const OrdersPage = () => {
             <CreateOrderForm
               onCreated={() => {
                 setIsModalOpen(false);
-                refresh();
+                refreshOrders();
+                refreshDashboard();
               }}
               onCancel={() => setIsModalOpen(false)}
             />

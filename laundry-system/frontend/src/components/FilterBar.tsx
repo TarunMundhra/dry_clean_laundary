@@ -1,17 +1,22 @@
+import { GARMENT_NAMES } from "../constants/garments";
 import { OrderStatus } from "../types";
 
 interface FilterBarProps {
   status: OrderStatus | "ALL";
+  garment: string | "ALL";
   search: string;
   onStatusChange: (value: OrderStatus | "ALL") => void;
+  onGarmentChange: (value: string | "ALL") => void;
   onSearchChange: (value: string) => void;
   onCreate: () => void;
 }
 
 export const FilterBar = ({
   status,
+  garment,
   search,
   onStatusChange,
+  onGarmentChange,
   onSearchChange,
   onCreate
 }: FilterBarProps) => (
@@ -27,6 +32,18 @@ export const FilterBar = ({
         <option value="PROCESSING">Processing</option>
         <option value="READY">Ready</option>
         <option value="DELIVERED">Delivered</option>
+      </select>
+      <select
+        value={garment}
+        onChange={(event) => onGarmentChange(event.target.value)}
+        className="rounded-full border border-ink/20 bg-white px-4 py-2 text-sm"
+      >
+        <option value="ALL">All garments</option>
+        {GARMENT_NAMES.map((name) => (
+          <option key={name} value={name}>
+            {name}
+          </option>
+        ))}
       </select>
       <input
         value={search}

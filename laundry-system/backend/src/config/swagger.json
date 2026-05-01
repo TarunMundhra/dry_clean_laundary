@@ -241,6 +241,25 @@
             }
           },
           {
+            "name": "garment",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Shirt",
+                "Pants",
+                "Saree",
+                "Suit",
+                "Jacket",
+                "Kurta",
+                "Dress",
+                "Bedsheet",
+                "Curtain",
+                "Woolen"
+              ]
+            }
+          },
+          {
             "name": "search",
             "in": "query",
             "schema": { "type": "string" }

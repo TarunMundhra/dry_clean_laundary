@@ -6,6 +6,7 @@ import {
   listOrdersHandler,
   updateOrderStatusHandler,
 } from "../controllers/order.controller";
+import { GARMENT_CATALOG } from "../constants/garments";
 import { requireAuth } from "../middleware/auth.middleware";
 import { validateRequest } from "../middleware/validate.middleware";
 
@@ -32,6 +33,7 @@ router.get(
     query("status")
       .optional()
       .isIn(["RECEIVED", "PROCESSING", "READY", "DELIVERED"]),
+    query("garment").optional().isIn(Object.keys(GARMENT_CATALOG)),
     query("search").optional().isString().trim(),
     query("page").optional().isInt({ min: 1 }),
     query("limit").optional().isInt({ min: 1 }),

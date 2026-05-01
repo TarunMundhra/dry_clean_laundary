@@ -1,7 +1,7 @@
 import { addDays } from "date-fns";
 import { FilterQuery } from "mongoose";
 import { env } from "../config/env";
-import { GARMENT_CATALOG } from "../constants/garments";
+import { GARMENT_CATALOG, GARMENT_DELIVERY_DAYS } from "../constants/garments";
 import { Order, OrderDocument } from "../models/Order.model";
 import { OrderInputGarment, OrderStatus, PaginatedResult } from "../types";
 import { AppError } from "../utils/appError";
@@ -23,6 +23,7 @@ export interface CreateOrderInput {
 
 export interface ListOrdersParams {
   status?: OrderStatus;
+  garment?: string;
   search?: string;
   page: number;
   limit: number;
@@ -77,6 +78,21 @@ const buildGarments = (
 const computeTotalAmount = (items: OrderDocument["garments"]): number =>
   items.reduce((total, item) => total + item.subtotal, 0);
 
+const computeDeliveryOffsetDays = (
+  items: OrderDocument["garments"],
+): number => {
+  const fallback = env.deliveryDaysOffset;
+  if (!items.length) {
+    return fallback;
+  }
+
+  const candidateDays = items.map(
+    (item) => GARMENT_DELIVERY_DAYS[item.name] ?? fallback,
+  );
+
+  return Math.max(fallback, ...candidateDays);
+};
+
 /**
  * Create a new order with computed totals and delivery date.
  */
@@ -88,7 +104,8 @@ export const createOrder = async (
   const garments = buildGarments(input.garments);
   const totalAmount = computeTotalAmount(garments);
   const now = new Date();
-  const estimatedDeliveryDate = addDays(now, env.deliveryDaysOffset);
+  const deliveryOffsetDays = computeDeliveryOffsetDays(garments);
+  const estimatedDeliveryDate = addDays(now, deliveryOffsetDays);
 
   const order = new Order({
     orderId: "PENDING",
@@ -112,11 +129,15 @@ export const createOrder = async (
 export const listOrders = async (
   params: ListOrdersParams,
 ): Promise<PaginatedResult<OrderDocument>> => {
-  const { status, search, page, limit } = params;
+  const { status, garment, search, page, limit } = params;
   const filter: FilterQuery<OrderDocument> = {};
 
   if (status) {
     filter.status = status;
+  }
+
+  if (garment) {
+    filter["garments.name"] = garment;
   }
 
   if (search) {

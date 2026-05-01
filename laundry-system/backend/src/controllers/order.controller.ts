@@ -22,6 +22,10 @@ export const createOrderHandler = asyncHandler(
 export const listOrdersHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const status = req.query.status as OrderStatus | undefined;
+    const garment =
+      typeof req.query.garment === "string"
+        ? req.query.garment.trim()
+        : undefined;
     const search =
       typeof req.query.search === "string"
         ? req.query.search.trim()
@@ -32,7 +36,7 @@ export const listOrdersHandler = asyncHandler(
     const limit =
       Number.isFinite(limitValue) && limitValue > 0 ? limitValue : 10;
 
-    const result = await listOrders({ status, search, page, limit });
+    const result = await listOrders({ status, garment, search, page, limit });
 
     res.status(200).json({
       success: true,

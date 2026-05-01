@@ -1,38 +1,32 @@
-import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { ApiSuccess, DashboardStats } from "../types";
 import { DashboardStats as DashboardStatsView } from "../components/DashboardStats";
 
 export const DashboardPage = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchStats = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+  const query = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: async (): Promise<DashboardStats> => {
       const response = await api.get<ApiSuccess<DashboardStats>>("/dashboard");
-      setStats(response.data.data);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.error?.message ?? "Failed to load stats");
-      } else {
-        setError("Failed to load stats");
-      }
-    } finally {
-      setLoading(false);
+      return response.data.data;
+    },
+    staleTime: 15000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: false
+  });
+
+  const errorMessage = (() => {
+    if (!query.error) {
+      return null;
     }
-  }, []);
+    if (axios.isAxiosError(query.error)) {
+      return query.error.response?.data?.error?.message ?? "Failed to load stats";
+    }
+    return "Failed to load stats";
+  })();
 
-  useEffect(() => {
-    fetchStats();
-    const interval = window.setInterval(fetchStats, 30000);
-    return () => window.clearInterval(interval);
-  }, [fetchStats]);
-
-  if (loading && !stats) {
+  if (query.isLoading && !query.data) {
     return <p className="text-slate">Loading dashboard...</p>;
   }
 
@@ -48,13 +42,13 @@ export const DashboardPage = () => {
         </p>
       </div>
 
-      {error && (
+      {errorMessage && (
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
+          {errorMessage}
         </div>
       )}
 
-      {stats && <DashboardStatsView stats={stats} />}
+      {query.data && <DashboardStatsView stats={query.data} />}
     </section>
   );
 };

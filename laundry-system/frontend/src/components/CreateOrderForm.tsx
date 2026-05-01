@@ -4,22 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import axios from "axios";
 import { api } from "../api/client";
+import { GARMENT_CATALOG, GARMENT_NAMES, GarmentName } from "../constants/garments";
 import { ApiSuccess, CreateOrderPayload, Order } from "../types";
 
-const GARMENT_CATALOG = {
-  Shirt: 49,
-  Pants: 59,
-  Saree: 149,
-  Suit: 199,
-  Jacket: 129,
-  Kurta: 79,
-  Dress: 99,
-  Bedsheet: 119,
-  Curtain: 139,
-  Woolen: 169
-} as const;
-
-const garmentNames = Object.keys(GARMENT_CATALOG) as Array<keyof typeof GARMENT_CATALOG>;
+const garmentNames = GARMENT_NAMES as [GarmentName, ...GarmentName[]];
 
 const orderSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),
@@ -29,7 +17,7 @@ const orderSchema = z.object({
   garments: z
     .array(
       z.object({
-        name: z.enum(garmentNames as [string, ...string[]]),
+        name: z.enum(garmentNames),
         quantity: z.number().int().min(1, "Quantity must be at least 1")
       })
     )
@@ -142,7 +130,7 @@ export const CreateOrderForm = ({ onCreated, onCancel }: CreateOrderFormProps) =
                 {...register(`garments.${index}.name`)}
                 className="rounded-xl border border-ink/20 px-4 py-2"
               >
-                {garmentNames.map((name) => (
+                {GARMENT_NAMES.map((name) => (
                   <option key={name} value={name}>
                     {name}
                   </option>
